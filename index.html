@@ -14,8 +14,13 @@
 </head>
 
 <body>
-  <header class="app-header">
-    <div class="header-top">
+<main class="app-main">
+
+    <!-- ================= ABA LOGBOOK ================= -->
+    <div id="tab-logbook-content" class="tab-content">
+      
+      <div class="app-header logbook-header">
+<div class="header-top">
       <h1>🚁 Logbook Drone</h1>
 
       <div class="dashboard">
@@ -53,20 +58,7 @@
       <input type="text" id="pilotSarpas" placeholder="SARPAS do operador" />
       <button type="button" onclick="savePilot()">Salvar dados</button>
     </div>
-
-    <div class="tabs">
-      <button type="button" onclick="showTab('logbook')" id="tab-logbook" class="active">📘 Logbook</button>
-      <button type="button" onclick="showTab('reports')" id="tab-reports">📊 Relatórios</button>
-      <button type="button" onclick="showTab('settings')" id="tab-settings">⚙️ Cadastros</button>
-      <button type="button" onclick="showTab('weather')" id="tab-weather">🌦️ Clima</button>
-      <button type="button" onclick="showTab('operation')" id="tab-operation">🟢 Operação</button>
-    </div>
-  </header>
-
-  <main class="app-main">
-
-    <!-- ================= ABA LOGBOOK ================= -->
-    <div id="tab-logbook-content" class="tab-content">
+      </div>
       <section class="card">
         <h2>Novo Voo</h2>
 
@@ -353,5 +345,14 @@
     </div>
   </div>
 
+  <footer class="tabs-footer">
+    <div class="tabs">
+      <button type="button" onclick="showTab('logbook')" id="tab-logbook" class="active"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2V6a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 8h8M9 12h8M9 16h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="tab-label">Logbook</span></button>
+      <button type="button" onclick="showTab('reports')" id="tab-reports"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4 19h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 15l3-4 3 2 4-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 7h3v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="tab-label">Relatórios</span></button>
+      <button type="button" onclick="showTab('settings')" id="tab-settings"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 7h4M10 17h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="14" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></span><span class="tab-label">Cadastros</span></button>
+      <button type="button" onclick="showTab('weather')" id="tab-weather"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14a4 4 0 0 1 7.7-1.5A3.5 3.5 0 1 1 17 20H8.5A3.5 3.5 0 0 1 6 14Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 6a4 4 0 0 1 7 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 22h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="tab-label">Clima</span></button>
+      <button type="button" onclick="showTab('operation')" id="tab-operation"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l12-7-12-7Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="6" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></span><span class="tab-label">Operação</span></button>
+    </div>
+  </footer>
 </body>
 </html>
