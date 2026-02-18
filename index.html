@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>🚁 Logbook Drone</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css?v=15" />
+
+  <!-- iOS (opcional) -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+</head>
+
+<body>
+<main class="app-main">
+
+    <!-- ================= ABA LOGBOOK ================= -->
+    <div id="tab-logbook-content" class="tab-content">
+      
+      <div class="app-header logbook-header">
+<div class="header-top">
+      <h1>🚁 Logbook Drone</h1>
+
+      <div class="dashboard">
+        <div class="dash-card">
+          <div class="dash-label">Total</div>
+          <div id="dashTotalHours" class="dash-value">0h 0min</div>
+        </div>
+
+        <div class="dash-card">
+          <div class="dash-label">Voos</div>
+          <div id="dashTotalFlights" class="dash-value">0</div>
+        </div>
+
+        <div class="dash-card">
+          <div class="dash-label">Mês</div>
+          <div id="dashThisMonth" class="dash-subvalue">0h 0min • 0</div>
+        </div>
+
+        <div class="dash-card">
+          <div class="dash-label">Último</div>
+          <div id="dashLastFlight" class="dash-subvalue">—</div>
+        </div>
+      </div>
+
+      <p id="summary" class="summary" style="display:none;"></p>
+    </div>
+
+    <button type="button" class="pilot-toggle" id="pilotToggle" onclick="togglePilotBox()">
+      👤 Dados do operador
+    </button>
+
+    <div id="pilotBox" class="pilot-box">
+      <input type="text" id="pilotName" class="span-2" placeholder="Nome completo" />
+      <input type="text" id="pilotCPF" placeholder="CPF" />
+      <input type="text" id="pilotSarpas" placeholder="SARPAS do operador" />
+      <button type="button" onclick="savePilot()">Salvar dados</button>
+    </div>
+      </div>
+      <section class="card">
+        <h2>Novo Voo</h2>
+
+        <div class="grid">
+          <input type="date" id="date" class="span-2" />
+
+          <input type="number" id="duration" placeholder="Duração (min)" min="1" />
+          <input type="number" id="flightsCount" placeholder="Nº voos" min="1" />
+
+          <select id="drone"></select>
+          <input type="text" id="newDrone" placeholder="Novo drone" />
+
+          <select id="location"></select>
+          <button type="button" class="mini-btn" onclick="useCurrentLocationLogbook()">📍 Atual</button>
+
+          <input type="text" id="newLocation" class="span-2" placeholder="Novo local (GPS ou manual)" />
+
+          <select id="sarpas"></select>
+          <input type="text" id="newSarpas" placeholder="Novo SARPAS" />
+        </div>
+
+        <textarea id="notes" placeholder="Observações"></textarea>
+
+        <button type="button" class="primary" onclick="addFlight()">Salvar Voo</button>
+      </section>
+    </div>
+
+    <!-- ================= ABA OPERAÇÃO ================= -->
+    <div id="tab-operation-content" class="tab-content" style="display:none;">
+      <section class="card">
+        <h2>Operação</h2>
+
+        <div class="grid">
+          <select id="opDrone" class="span-2"></select>
+          <select id="opSarpas" class="span-2"></select>
+
+          <input type="text" id="opLocation" class="span-2" placeholder="Local (GPS)" readonly />
+          <button type="button" class="mini-btn span-2" onclick="useCurrentLocationOperation(true)">📍 Atualizar localização</button>
+        </div>
+
+        <div id="opIdleBox" style="margin-top:8px;">
+          <button type="button" class="btn-green" onclick="startOperation()">Iniciar Voo</button>
+        </div>
+
+        <div id="opRunningBox" style="display:none; margin-top:10px;">
+          <div id="opTimer" class="op-timer">00:00:00</div>
+          <div class="op-hint">Cronômetro em andamento…</div>
+          <div style="margin-top:8px;">
+            <button type="button" class="btn-red" onclick="endOperation()">Encerrar Voo</button>
+          </div>
+        </div>
+
+        <div id="opMsg" class="op-msg" style="display:none;"></div>
+      </section>
+    </div>
+
+    <!-- ================= ABA RELATÓRIOS ================= -->
+    <div id="tab-reports-content" class="tab-content" style="display:none;">
+      <section class="card">
+        <h2>Horas por Drone</h2>
+        <ul id="hoursByDrone" class="list"></ul>
+      </section>
+
+      <section class="card">
+        <button type="button" class="ghost" onclick="toggleMonthly()" id="toggleMonthlyBtn">
+          📅 Ver relatório mensal
+        </button>
+
+        <div id="monthlyBox" style="display:none; margin-top:10px;">
+          <h2>📅 Relatório Mensal</h2>
+          <ul id="monthlySummary" class="list"></ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Exportação</h2>
+        <div class="row">
+          <button type="button" onclick="exportCSV()">📁 Excel</button>
+          <button type="button" onclick="exportPDF()">📄 PDF</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>🔎 Filtrar Voos</h3>
+
+        <div class="grid">
+          <input type="date" id="filterDate">
+          <select id="filterDrone"></select>
+          <select id="filterLocation"></select>
+          <select id="filterSarpas"></select>
+        </div>
+
+        <div class="row">
+          <button type="button" onclick="renderFlights()">Aplicar</button>
+          <button type="button" class="ghost" onclick="clearFilters()">Limpar</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="row space">
+          <h2>Histórico</h2>
+          <button type="button" class="ghost" onclick="toggleHistory()">📂 Mostrar / Ocultar</button>
+        </div>
+
+        <div id="historyContainer" style="display:none; margin-top:10px;">
+          <ul id="flightList" class="list"></ul>
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= ABA CLIMA ================= -->
+    <div id="tab-weather-content" class="tab-content" style="display:none;">
+      <section class="card">
+        <div class="row space">
+          <h2>Clima (pela sua localização)</h2>
+          <button type="button" class="ghost" onclick="refreshWeather()">🔄 Atualizar</button>
+        </div>
+
+        <p id="weatherPlace" class="weather-place">—</p>
+
+        <!-- METAR (aeroporto salvo) -->
+        <div class="metar-box">
+          <h3>METAR do aeroporto</h3>
+
+          <div class="grid">
+            <select id="metarSaved" class="span-2"></select>
+            <input type="text" id="metarInput" class="span-2" placeholder="Digite ICAO (ex: SBGR) ou IATA (ex: GRU)" />
+          </div>
+
+          <div class="row" style="margin-top:8px;">
+            <button type="button" onclick="fetchMetar()">📡 Buscar METAR</button>
+            <button type="button" class="ghost" onclick="saveMetarStation()">💾 Salvar</button>
+          </div>
+
+          <div class="row" style="margin-top:8px;">
+            <button type="button" class="ghost" onclick="deleteMetarStation()">🗑️ Excluir salvo</button>
+            <button type="button" class="ghost" onclick="setMetarAsDefault()">⭐ Definir padrão</button>
+          </div>
+
+          <div id="metarResult" class="metar-result" style="display:none;"></div>
+          <div id="metarDecoded" class="metar-decoded" style="display:none;"></div>
+          <div id="metarOps" class="metar-ops" style="display:none;"></div>
+          <div id="metarMsg" class="op-msg" style="display:none;"></div>
+        </div>
+
+
+        <div class="weather-grid">
+          <div class="weather-item">
+            <div class="weather-label">Condição</div>
+            <div id="weatherCondition" class="weather-value">—</div>
+          </div>
+
+          <div class="weather-item">
+            <div class="weather-label">Vento</div>
+            <div id="weatherWind" class="weather-value">—</div>
+          </div>
+
+          <div class="weather-item">
+            <div class="weather-label">Rajadas</div>
+            <div id="weatherGust" class="weather-value">—</div>
+          </div>
+
+          <div class="weather-item">
+            <div class="weather-label">Direção</div>
+            <div id="weatherWindDir" class="weather-value">—</div>
+          </div>
+
+          <div class="weather-item">
+            <div class="weather-label">Kp (índice geomagnético)</div>
+            <div id="weatherKp" class="weather-value">—</div>
+          </div>
+
+          <div class="weather-item">
+            <div class="weather-label">Visibilidade</div>
+            <div id="weatherVis" class="weather-value">—</div>
+          </div>
+
+          <div class="weather-item span-2">
+            <div class="weather-label">Nuvens (camadas)</div>
+            <div id="weatherCloudLayers" class="weather-value">—</div>
+          </div>
+
+          <div class="weather-item span-2">
+            <div class="weather-label">Teto (base da nuvem) / teto operacional</div>
+            <div id="weatherCeiling" class="weather-value">—</div>
+          </div>
+        </div>
+
+        <div id="weatherMsg" class="op-msg" style="display:none;"></div>
+        <p class="weather-footnote">
+          * Dados meteorológicos: Open-Meteo. Kp: NOAA/SWPC. Pode haver variação conforme a cobertura da região.
+        </p>
+      </section>
+    </div>
+
+    <!-- ================= ABA CADASTROS ================= -->
+    <div id="tab-settings-content" class="tab-content" style="display:none;">
+      <section class="card">
+        <h2>Cadastros</h2>
+
+        <h3>Backup</h3>
+        <div class="row">
+          <button type="button" onclick="downloadBackup()">📦 Backup (.json)</button>
+          <button type="button" class="ghost" onclick="triggerImport()">📥 Importar backup</button>
+        </div>
+
+        <input
+          type="file"
+          id="backupFile"
+          accept="application/json"
+          style="display:none"
+          onchange="handleImportFile(event)"
+        />
+
+        <!-- ✅ DRONE PADRÃO -->
+        <h3 style="margin-top:14px;">Drone padrão (Operação)</h3>
+        <div class="grid">
+          <select id="defaultDroneSelect" class="span-2"></select>
+          <input type="text" id="defaultDroneNew" class="span-2" placeholder="Ou digite um novo drone padrão" />
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <button type="button" onclick="saveDefaultDrone()">Salvar drone padrão</button>
+          <button type="button" class="ghost" onclick="clearDefaultDrone()">Excluir padrão</button>
+        </div>
+
+        <!-- ✅ SARPAS PADRÃO -->
+        <h3 style="margin-top:14px;">SARPAS padrão (Operação)</h3>
+        <div class="grid">
+          <select id="defaultSarpasSelect" class="span-2"></select>
+          <input type="text" id="defaultSarpasNew" class="span-2" placeholder="Ou digite um novo SARPAS padrão" />
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <button type="button" onclick="saveDefaultSarpas()">Salvar SARPAS padrão</button>
+          <button type="button" class="ghost" onclick="clearDefaultSarpas()">Excluir padrão</button>
+        </div>
+
+        <h3 style="margin-top:14px;">Drones</h3>
+        <ul id="droneList" class="list"></ul>
+
+        <h3>Locais</h3>
+        <ul id="locationList" class="list"></ul>
+
+        <h3>SARPAS</h3>
+        <ul id="sarpasList" class="list"></ul>
+      </section>
+
+      <!-- ✅ Versão do app -->
+      <section class="card">
+        <h2>Versão do app</h2>
+        <p id="appVersionText" class="version-meta">—</p>
+
+        <h3>Histórico</h3>
+        <ul id="appChangelog" class="list"></ul>
+      </section>
+    </div>
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="app.js?v=15"></script>
+
+  <!-- ================= MODAL: EDITAR VOO (COMPLETO) ================= -->
+  <div id="editModalOverlay" class="modal-overlay" style="display:none;">
+    <div id="editModalCard" class="modal-card" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+      <div class="modal-header">
+        <h2 id="editModalTitle">✏️ Editar voo</h2>
+        <button type="button" id="editModalClose" class="icon-btn" aria-label="Fechar">✖</button>
+      </div>
+      <div id="editModalSub" class="modal-sub">—</div>
+
+      <div class="grid" style="margin-top:10px;">
+        <input type="date" id="editDate" class="span-2" />
+
+        <input type="number" id="editDuration" placeholder="Duração (min)" min="1" />
+        <input type="number" id="editFlightsCount" placeholder="Nº voos" min="1" />
+
+        <select id="editDrone"></select>
+        <input type="text" id="editNewDrone" placeholder="Ou digite o drone" />
+
+        <select id="editLocation"></select>
+        <input type="text" id="editNewLocation" placeholder="Ou digite o local" />
+
+        <select id="editSarpas"></select>
+        <input type="text" id="editNewSarpas" placeholder="Ou digite o SARPAS" />
+      </div>
+
+      <textarea id="editNotes" placeholder="Observações" style="margin-top:10px;"></textarea>
+
+      <div class="row" style="margin-top:10px;">
+        <button type="button" id="editModalCancel" class="ghost" style="width:auto;">Cancelar</button>
+        <button type="button" id="editModalSave" class="primary" style="width:auto;">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ✅ Banner de atualização do app (PWA) -->
+  <div id="updateBanner" class="update-banner" style="display:none;">
+    <div class="update-banner-inner">
+      <div class="update-banner-text">
+        <strong>✨ Atualização disponível</strong>
+        <div class="update-banner-sub">Toque em “Atualizar agora” para aplicar a nova versão.</div>
+      </div>
+      <button type="button" class="small-btn" id="updateNowBtn">Atualizar agora</button>
+    </div>
+  </div>
+
+  <footer class="tabs-footer">
+    <div class="tabs">
+      <button type="button" onclick="showTab('logbook')" id="tab-logbook" class="active"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2V6a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 8h8M9 12h8M9 16h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="tab-label">Logbook</span></button>
+      <button type="button" onclick="showTab('reports')" id="tab-reports"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4 19h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 15l3-4 3 2 4-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 7h3v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="tab-label">Relatórios</span></button>
+      <button type="button" onclick="showTab('settings')" id="tab-settings"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 7h4M10 17h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="14" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></span><span class="tab-label">Cadastros</span></button>
+      <button type="button" onclick="showTab('weather')" id="tab-weather"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14a4 4 0 0 1 7.7-1.5A3.5 3.5 0 1 1 17 20H8.5A3.5 3.5 0 0 1 6 14Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 6a4 4 0 0 1 7 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 22h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="tab-label">Clima</span></button>
+      <button type="button" onclick="showTab('operation')" id="tab-operation"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l12-7-12-7Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="6" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></span><span class="tab-label">Operação</span></button>
+    </div>
+  </footer>
+</body>
+</html>
